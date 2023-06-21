@@ -1,13 +1,8 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { type GetServerSidePropsContext } from "next";
-import {
-  getServerSession,
-  type NextAuthOptions,
-  type DefaultSession,
-} from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
-import { env } from "@app/env.mjs";
-import { prisma } from "@app/server/db";
+import {PrismaAdapter} from "@next-auth/prisma-adapter";
+import {type GetServerSidePropsContext} from "next";
+import {type DefaultSession, getServerSession, type NextAuthOptions,} from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import {prisma} from "@app/server/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -46,7 +41,17 @@ export const authOptions: NextAuthOptions = {
     }),
   },
   adapter: PrismaAdapter(prisma),
-  providers: [
+  providers: [GoogleProvider({
+    clientId: process.env.GOOGLE_ID ?? '',
+    clientSecret: process.env.GOOGLE_SECRET ?? '',
+    authorization: {
+      params: {
+        prompt: "consent",
+        access_type: "offline",
+        response_type: "code"
+      }
+    }
+  })
     // DiscordProvider({
     //   clientId: env.DISCORD_CLIENT_ID,
     //   clientSecret: env.DISCORD_CLIENT_SECRET,
