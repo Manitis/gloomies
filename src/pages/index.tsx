@@ -1,12 +1,69 @@
+import * as React from "react";
+import { PropsWithChildren, useCallback } from "react";
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { api } from "@app/utils/api";
+import { Box, Button, Center, Flex, Heading, Spinner } from "@chakra-ui/react";
+
+const PageLayout: React.FC<PropsWithChildren> = ({ children }) => {
+  return (
+    <Center
+      w="full"
+      minH="100vh"
+      overscroll="none"
+      className="bg-gradient-to-b from-[#2e026d] to-[#15162c]"
+    >
+      <Flex
+        direction="column"
+        align="center"
+        maxW={{ xl: "1200px" }}
+        m="0 auto"
+      >
+        {children}
+      </Flex>
+    </Center>
+  );
+};
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const { status } = useSession();
+  switch (status) {
+    case "unauthenticated":
+      return <LoginComponent />;
+    case "authenticated":
+      return <MainComponent />;
+    case "loading":
+      return <LoadingComponent />;
+  }
+  return null;
+};
 
+const LoginComponent = () => {
+  const onSignInClick = useCallback(() => {
+    signIn("google")
+      .then(() => console.log("Signed in"))
+      .catch(() => console.log("Sign in failed"));
+  }, []);
+  return (
+    <PageLayout>
+      <Heading color="white">Please login</Heading>
+      <Button onClick={onSignInClick}>Sign in</Button>
+    </PageLayout>
+  );
+};
+
+const LoadingComponent = () => {
+  return (
+    <PageLayout>
+      <Spinner color="white" size="xl" />
+    </PageLayout>
+  );
+};
+
+const MainComponent: NextPage = () => {
+  const hello = api.example.hello.useQuery({ text: "from tRPC" });
   return (
     <>
       <Head>
@@ -15,10 +72,10 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+        <Box borderRadius="2xl" bgColor="black">
+          <Heading className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
             Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
+          </Heading>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
             <Link
               className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
@@ -49,20 +106,18 @@ const Home: NextPage = () => {
             </p>
             <AuthShowcase />
           </div>
-        </div>
+        </Box>
       </main>
     </>
   );
 };
-
-export default Home;
 
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession();
 
   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
     undefined, // no input
-    { enabled: sessionData?.user !== undefined },
+    { enabled: sessionData?.user !== undefined }
   );
 
   return (
@@ -80,3 +135,5 @@ const AuthShowcase: React.FC = () => {
     </div>
   );
 };
+
+export default Home;
