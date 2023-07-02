@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PropsWithChildren, useCallback } from "react";
+import { PropsWithChildren, useCallback, useState } from "react";
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
@@ -15,6 +15,8 @@ import {
   RangeSliderThumb,
   RangeSliderTrack,
   Spinner,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 
 const PageLayout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -38,16 +40,38 @@ const PageLayout: React.FC<PropsWithChildren> = ({ children }) => {
 };
 
 const Home: NextPage = () => {
-  const { status } = useSession();
-  switch (status) {
-    case "unauthenticated":
-      return <LoginComponent />;
-    case "authenticated":
-      return <MainComponent />;
-    case "loading":
-      return <LoadingComponent />;
+  // const { status } = useSession();
+
+  const [counter, setCounter] = useState(0);
+  const [counter2, setCounter2] = useState(0);
+
+  if(counter === 0){
+      return null;
   }
-  return null;
+  console.log("Render", { counter, counter2 });
+  return (
+    <VStack>
+        <Text>{counter}</Text>
+        <Text>{counter2}</Text>
+        <Button onClick={() => setCounter(counter + 1)}>Add</Button>
+      <Button onClick={() => setCounter2(counter2 + 1)}>Add2</Button>
+    </VStack>
+  );
+  // switch (status) {
+  //   case "unauthenticated":
+  //     return <LoginComponent />;
+  //   case "authenticated":
+  //     return <MainComponent />;
+  //   case "loading":
+  //     return (
+  //       <LoadingComponent
+  //         authStatus={status}
+  //         test2="asdasd"
+  //         person={{ age: 2, name: "Skuggi" }}
+  //       />
+  //     );
+  // }
+  // return null;
 };
 
 const LoginComponent = () => {
@@ -64,10 +88,31 @@ const LoginComponent = () => {
   );
 };
 
-const LoadingComponent = () => {
+type Props = { bla: string };
+function LoadingComponent2(props: Props) {
+  return <Text>{props.bla}</Text>;
+}
+
+type Person = {
+  name: string;
+  age: number;
+};
+type LoadingProps = {
+  authStatus: string;
+  test2: string;
+  age?: number;
+  person: Person;
+};
+const LoadingComponent = (props: LoadingProps) => {
+  const { age, authStatus, person, test2 } = props;
+
   return (
     <PageLayout>
       <Spinner color="white" size="xl" />
+      <Text>{authStatus}</Text>
+      <Text>{age}</Text>
+      <Text>{person.age}</Text>
+      <Text>{person.name}</Text>
     </PageLayout>
   );
 };
