@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PropsWithChildren, useCallback } from "react";
+import { PropsWithChildren, useCallback, useState } from "react";
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
@@ -70,6 +70,7 @@ const LoginComponent = () => {
 };
 
 type Props = { bla: string };
+
 function LoadingComponent2(props: Props) {
   return <Text>{props.bla}</Text>;
 }
@@ -98,6 +99,24 @@ const LoadingComponent = (props: LoadingProps) => {
   );
 };
 
+function TestUseState1() {
+  const [count, setCount] = useState(0);
+  if (10 == count) setCount(99);
+
+  return <Button onClick={() => setCount(count + 1)}>{count}</Button>;
+}
+
+const TestUseState2 = () => {
+  const [color, setColor] = useState("red");
+  //const nextColor = "green";
+  const handleClick = () => {
+    if (color == "red") setColor("green");
+    else if (color == "green") setColor("yellow");
+    else if (color == "yellow") setColor("red");
+  };
+
+  return <Button onClick={handleClick} colorScheme={color} size="md"></Button>;
+};
 function TestFunction1() {
   const [flag, setFlag] = useBoolean();
   return (
@@ -109,6 +128,7 @@ function TestFunction1() {
     </Box>
   );
 }
+
 const MainComponent: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
   return (
@@ -133,7 +153,15 @@ const MainComponent: NextPage = () => {
             <Heading textAlign="center"> Props </Heading>
           </Flex>
           <Box flex="1">
+            <TestUseState1></TestUseState1>
             <TestFunction1></TestFunction1>
+            <TestUseState2></TestUseState2>
+            <TestUseState2></TestUseState2>
+            <TestUseState2></TestUseState2>
+            <TestUseState2></TestUseState2>
+            <TestUseState2></TestUseState2>
+            <TestUseState2></TestUseState2>
+            <TestUseState2></TestUseState2>
           </Box>
           <Flex flex="1" bg="black" alignItems="center">
             <Heading textAlign="center">Test</Heading>
