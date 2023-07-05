@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PropsWithChildren, useCallback, useState } from "react";
+import { PropsWithChildren, useCallback } from "react";
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
@@ -10,13 +10,9 @@ import {
   Center,
   Flex,
   Heading,
-  RangeSlider,
-  RangeSliderFilledTrack,
-  RangeSliderThumb,
-  RangeSliderTrack,
   Spinner,
   Text,
-  VStack,
+  useBoolean,
 } from "@chakra-ui/react";
 
 const PageLayout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -40,38 +36,23 @@ const PageLayout: React.FC<PropsWithChildren> = ({ children }) => {
 };
 
 const Home: NextPage = () => {
-  // const { status } = useSession();
+  const { status } = useSession();
 
-  const [counter, setCounter] = useState(0);
-  const [counter2, setCounter2] = useState(0);
-
-  if(counter === 0){
-      return null;
+  switch (status) {
+    case "unauthenticated":
+      return <LoginComponent />;
+    case "authenticated":
+      return <MainComponent />;
+    case "loading":
+      return (
+        <LoadingComponent
+          authStatus={status}
+          test2="asdasd"
+          person={{ age: 2, name: "Skuggi" }}
+        />
+      );
   }
-  console.log("Render", { counter, counter2 });
-  return (
-    <VStack>
-        <Text>{counter}</Text>
-        <Text>{counter2}</Text>
-        <Button onClick={() => setCounter(counter + 1)}>Add</Button>
-      <Button onClick={() => setCounter2(counter2 + 1)}>Add2</Button>
-    </VStack>
-  );
-  // switch (status) {
-  //   case "unauthenticated":
-  //     return <LoginComponent />;
-  //   case "authenticated":
-  //     return <MainComponent />;
-  //   case "loading":
-  //     return (
-  //       <LoadingComponent
-  //         authStatus={status}
-  //         test2="asdasd"
-  //         person={{ age: 2, name: "Skuggi" }}
-  //       />
-  //     );
-  // }
-  // return null;
+  return null;
 };
 
 const LoginComponent = () => {
@@ -117,6 +98,17 @@ const LoadingComponent = (props: LoadingProps) => {
   );
 };
 
+function TestFunction1() {
+  const [flag, setFlag] = useBoolean();
+  return (
+    <Box>
+      <p>Boolean state: {flag.toString()}</p>
+      <Button onClick={setFlag.toggle} colorScheme="red">
+        Click me to toggle the boolean value
+      </Button>
+    </Box>
+  );
+}
 const MainComponent: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
   return (
@@ -136,9 +128,13 @@ const MainComponent: NextPage = () => {
           bg="blue"
           justifyContent="center"
         >
-          <Flex flex="2" bg="green" alignItems="center">
-            <Heading textAlign="center">Test</Heading>
+          <Flex flex="2" bg="red" alignItems="center">
+            <Button colorScheme="blue"> button </Button>
+            <Heading textAlign="center"> Props </Heading>
           </Flex>
+          <Box flex="1">
+            <TestFunction1></TestFunction1>
+          </Box>
           <Flex flex="1" bg="black" alignItems="center">
             <Heading textAlign="center">Test</Heading>
           </Flex>
